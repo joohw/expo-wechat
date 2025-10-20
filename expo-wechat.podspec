@@ -14,10 +14,7 @@ Pod::Spec.new do |s|
                    DESC
   s.homepage     = "https://github.com/joohw/expo-wechat"
   s.license      = "MIT"
-  s.authors      = { 
-    "Joo" => "1546635571@qq.com"
-        "原作者" => "zeng-zhiming<171314432@qq.com>",
-  }
+  s.authors      = { "Joo" => "1546635571@qq.com"}
   s.platforms    = { :ios => "9.0" }
   s.source       = { :git => "https://github.com/joohw/expo-wechat.git", :tag => "#{s.version}" }
   s.source_files = "ios/**/*.{h,c,cc,cpp,m,mm,swift}"

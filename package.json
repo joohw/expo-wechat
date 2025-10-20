@@ -1,7 +1,7 @@
 {
   "name": "expo-wechat-sdk",
   "title": "Expo Wechat SDK",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "为 Expo 和 React Native 提供微信登录、分享、支付功能的原生模块。基于最新微信 SDK 开发，支持 iOS 和 Android 平台",
   "main": "src/index",
   "files": [

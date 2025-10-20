@@ -8,7 +8,7 @@ declare enum WXScene {
   WXSceneSpecifiedSession = 3 /**< 指定联系人  */,
 }
 
-declare module 'expo-react-native-wechat' {
+declare module 'expo-wechat-sdk' {
   export function registerApp(
     appId: string,
     universalLink?: string
