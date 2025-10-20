@@ -5,11 +5,11 @@
   "description": "为 Expo 和 React Native 提供微信登录、分享、支付功能的原生模块。基于最新微信 SDK 开发，支持 iOS 和 Android 平台",
   "main": "src/index",
   "files": [
-    "README.md",
     "src",
-    "expo-react-native-wechat.podspec",
     "ios",
     "android",
+    "expo-wechat.podspec",
+    "README.md",
     "image"
   ],
   "scripts": {
@@ -17,8 +17,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zeng-zhiming/expo-react-native-wechat.git",
-    "baseUrl": "https://github.com/zeng-zhiming/expo-react-native-wechat"
+    "url": "git+https://github.com/joohw/expo-wechat.git",
+    "baseUrl": "https://github.com/joohw/expo-wechat"
   },
   "keywords": [
     "wechat",
@@ -28,14 +28,14 @@
     "ios",
     "android"
   ],
-  "author": "zeng-zhiming <171314432@qq.com>",
+  "author": "Joo <1546635571@qq.com>",
   "license": "MIT",
   "dependencies": {
     "events": "^3.3.0"
   },
   "types": "./src/index.d.ts",
   "bugs": {
-    "url": "https://github.com/zeng-zhiming/expo-react-native-wechat/issues"
+    "url": "https://github.com/joohw/expo-wechat/issues"
   },
-  "homepage": "https://github.com/zeng-zhiming/expo-react-native-wechat#readme"
+  "homepage": "https://github.com/joohw/expo-wechat#readme"
 }
