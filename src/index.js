@@ -11,24 +11,7 @@ const { WeChat } = NativeModules;
 const emitter = new EventEmitter();
 
 DeviceEventEmitter.addListener('WeChat_Resp', (resp) => {
-    // 调试日志：检查是否收到原生层事件
-    if (__DEV__) {
-        console.log('[WeChat] Received WeChat_Resp event:', resp);
-        if (resp.type === 'SendAuth.Resp') {
-            console.log('[WeChat] SendAuth.Resp details:', {
-                errCode: resp.errCode,
-                errStr: resp.errStr,
-                code: resp.code,
-                state: resp.state,
-            });
-        }
-    }
-    // 确保 resp.type 存在才转发事件
-    if (resp && resp.type) {
-        emitter.emit(resp.type, resp);
-    } else if (__DEV__) {
-        console.warn('[WeChat] WeChat_Resp event missing type field:', resp);
-    }
+    emitter.emit(resp.type, resp);
 });
 
 DeviceEventEmitter.addListener('WeChat_Req', (resp) => {
@@ -187,67 +170,19 @@ const nativeShareFile = wrapApi(WeChat.shareFile);
 
 /**
  * @method sendAuthRequest
- * @param {String|Array} scopes - the scopes for authentication.
- * @param {String} state - optional state parameter
+ * @param {Array} scopes - the scopes for authentication.
  * @return {Promise}
  */
 export function sendAuthRequest(scopes, state) {
-    if (!isAppRegistered) {
-        return Promise.reject(new Error('registerApp required.'));
-    }
-    // 将 scopes 数组转换为字符串（微信 SDK 使用逗号分隔的字符串）
-    let scopeString = scopes;
-    if (Array.isArray(scopes)) {
-        scopeString = scopes.join(',');
-    } else if (typeof scopes !== 'string') {
-        return Promise.reject(new Error('scopes must be a string or an array of strings.'));
-    }
     return new Promise((resolve, reject) => {
-        let timeoutId = null;
-        let isResolved = false;
-        // 设置超时（60秒）
-        timeoutId = setTimeout(() => {
-            if (!isResolved) {
-                isResolved = true;
-                if (__DEV__) {
-                    console.log('[WeChat] SendAuth.Resp timeout after 60s');
-                }
-                reject(new Error('微信登录超时，请重试'));
-            }
-        }, 60000);
-        // 先设置事件监听器，避免时序问题导致事件丢失
-        // 使用 addListener 而不是 once，确保应用恢复后仍能接收事件
-        const handler = (resp) => {
-            if (isResolved) {
-                return;
-            }
-            if (__DEV__) {
-                console.log('[WeChat] SendAuth.Resp event received:', resp);
-            }
-            // 检查 state 是否匹配（如果提供了 state）
-            if (state && resp.state && resp.state !== state) {
-                if (__DEV__) {
-                    console.log('[WeChat] State mismatch, ignoring response');
-                }
-                return;
-            }
-            isResolved = true;
-            if (timeoutId) {
-                clearTimeout(timeoutId);
-            }
-            emitter.removeListener('SendAuth.Resp', handler);
+        WeChat.sendAuthRequest(scopes, state, () => {});
+        emitter.once('SendAuth.Resp', (resp) => {
             if (resp.errCode === 0) {
                 resolve(resp);
             } else {
                 reject(new WechatError(resp));
             }
-        };
-        emitter.addListener('SendAuth.Resp', handler);
-        // 然后调用原生方法
-        if (__DEV__) {
-            console.log('[WeChat] Calling sendAuthRequest with scope:', scopeString, 'state:', state);
-        }
-        WeChat.sendAuthRequest(scopeString, state || '', () => {});
+        });
     });
 }
 
