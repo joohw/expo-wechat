@@ -11,6 +11,10 @@ const { WeChat } = NativeModules;
 const emitter = new EventEmitter();
 
 DeviceEventEmitter.addListener('WeChat_Resp', (resp) => {
+    // 调试日志：检查是否收到原生层事件
+    if (__DEV__ && resp.type === 'SendAuth.Resp') {
+        console.log('[WeChat] Received SendAuth.Resp:', resp);
+    }
     emitter.emit(resp.type, resp);
 });
 
@@ -186,14 +190,22 @@ export function sendAuthRequest(scopes, state) {
         return Promise.reject(new Error('scopes must be a string or an array of strings.'));
     }
     return new Promise((resolve, reject) => {
-        WeChat.sendAuthRequest(scopeString, state || '', () => {});
+        // 先设置事件监听器，避免时序问题导致事件丢失
         emitter.once('SendAuth.Resp', (resp) => {
+            if (__DEV__) {
+                console.log('[WeChat] SendAuth.Resp event received:', resp);
+            }
             if (resp.errCode === 0) {
                 resolve(resp);
             } else {
                 reject(new WechatError(resp));
             }
         });
+        // 然后调用原生方法
+        if (__DEV__) {
+            console.log('[WeChat] Calling sendAuthRequest with scope:', scopeString, 'state:', state);
+        }
+        WeChat.sendAuthRequest(scopeString, state || '', () => {});
     });
 }
 

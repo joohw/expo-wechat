@@ -611,11 +611,15 @@ RCT_EXPORT_METHOD(pay:(NSDictionary *)data
         body[@"type"] = @"SendAuth.Resp";
 
         if (resp.errCode == WXSuccess) {
-            if (self.appId && r) {
-                // ios第一次获取不到appid会卡死，加个判断OK
+            if (self.appId && r.code) {
+                // 如果 appId 和 code 都存在，添加这些字段
                 [body addEntriesFromDictionary:@{@"appid":self.appId, @"code":r.code}];
-                [self.bridge.eventDispatcher sendDeviceEventWithName:RCTWXEventName body:body];
+            } else if (r.code) {
+                // 如果只有 code，至少添加 code 字段
+                [body addEntriesFromDictionary:@{@"code":r.code}];
             }
+            // 无论 appId 是否存在，都要发送事件
+            [self.bridge.eventDispatcher sendDeviceEventWithName:RCTWXEventName body:body];
         }
         else {
             [self.bridge.eventDispatcher sendDeviceEventWithName:RCTWXEventName body:body];
