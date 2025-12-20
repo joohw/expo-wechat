@@ -170,12 +170,23 @@ const nativeShareFile = wrapApi(WeChat.shareFile);
 
 /**
  * @method sendAuthRequest
- * @param {Array} scopes - the scopes for authentication.
+ * @param {String|Array} scopes - the scopes for authentication.
+ * @param {String} state - optional state parameter
  * @return {Promise}
  */
 export function sendAuthRequest(scopes, state) {
+    if (!isAppRegistered) {
+        return Promise.reject(new Error('registerApp required.'));
+    }
+    // 将 scopes 数组转换为字符串（微信 SDK 使用逗号分隔的字符串）
+    let scopeString = scopes;
+    if (Array.isArray(scopes)) {
+        scopeString = scopes.join(',');
+    } else if (typeof scopes !== 'string') {
+        return Promise.reject(new Error('scopes must be a string or an array of strings.'));
+    }
     return new Promise((resolve, reject) => {
-        WeChat.sendAuthRequest(scopes, state, () => {});
+        WeChat.sendAuthRequest(scopeString, state || '', () => {});
         emitter.once('SendAuth.Resp', (resp) => {
             if (resp.errCode === 0) {
                 resolve(resp);
