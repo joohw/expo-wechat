@@ -1,154 +1,144 @@
 # expo-wechat
 
-🚀 专为 Expo 和 React Native 打造的微信生态集成解决方案
-
+专为 Expo  打造的微信集成解决方案。
+更新于2025年12月。
 基于最新微信官方 SDK 开发，为 Expo 项目提供稳定可靠的微信功能支持：
 
 - ✅ **微信登录** - OAuth 2.0 授权登录
 - ✅ **社交分享** - 文本、图片、网页、文件、音视频分享
 - ✅ **微信支付** - 完整的支付功能集成
-- ✅ **小程序** - 跳转小程序、分享小程序卡片
-- ✅ **发票功能** - 微信电子发票支持
 - 📱 **双平台支持** - 完整的 iOS & Android 兼容
 
 
-## 🆕 项目背景
+## 前期准备
 
-鉴于目前 Expo 生态中缺乏一个完善且持续维护的微信集成方案，本项目在 [@expo-react-native-wechat](https://github.com/zeng-zhiming/expo-react-native-wechat) 的基础上进行重构和优化。
+在开始使用本库之前，请确保你已经准备好以下内容：
 
+### 必需配置
 
-## 原项目地址
+1. **微信 AppID**
+   - 在 [微信开放平台](https://open.weixin.qq.com/) 注册并创建移动应用
+   - 获取应用的 **AppID**（格式：`wx` + 16位字符）
+   - 完成应用的基本信息填写和审核
 
-https://github.com/zeng-zhiming/expo-react-native-wechat/
+2. **iOS Universal Links 配置**（仅 iOS 需要）
+   - 为什么需要：iOS 系统需要通过 Universal Links 来实现应用间的跳转和回调。如果不配置，将导致：
+     - ❌ 无法接收微信登录回调
+     - ❌ 无法接收分享回调
+     - ❌ 无法接收支付回调
+   - 详细配置步骤请参考：[iOS Universal Links 配置指南](./docs/ios-universal-links.md)
 
+### 支付功能额外配置（仅支付需要）
+
+如果你需要使用微信支付功能，还需要额外准备：
+
+- **商户号（MCHID）** - 在微信支付商户平台申请
+- **API 密钥（API Key）** - 用于签名验证
+- **证书文件** - 用于退款等高级功能（可选）
+
+> 💡 **提示**：如果只需要登录和分享功能，可以暂时跳过支付相关配置。
 
 ## 快速开始
-`$ npx expo install expo-wechat`
+```bash
+npx expo install expo-wechat-sdk
+```
 
 或
 
-`$ yarn add expo--wechat`
-
-
-
-## 设置iOS Universal Links
-
-1、苹果开发者后台开启Associated Domains，查看项目TeamID
-
-https://developer.apple.com/account/resources/identifiers/list
-
-![Set Associated Domains](./image/associated-domains1.png)
-
-2、创建文件【apple-app-site-association】（这一步需要后台人员配合）
+```bash
+yarn add expo-wechat-sdk
 ```
-{
-   "applinks": {
-       "apps": [],
-       "details": [
-           {
-               "appID": "8P7343TG54.com.tencent.xin.SDKSample",
-               "paths": [ "/test/*" ]
-           }
-       ]
-   }
-}
-```
-将上面的JSON保存为【apple-app-site-association】文件放到网站【.well-known】目录 或者 网站根目录中
 
-注意事项：
-
-（1）apple-app-site-association文件没有后缀名，appID前面部分是在开发者后台查看的TeamID, 后面部分是iOS项目的bundleId
-
-（2）把【apple-app-site-association】文件放到网站【.well-known】目录 或者 网站根目录中
-
-（3）域名必须支持https，保证下面路径可以访问: https://help.wechat.com/.well-known/apple-app-site-association 或 https://help.wechat.com/apple-app-site-association
-
-（4）验证方式,通过下面链接可以查看我们设置的文件内容就说明成功了：https://app-site-association.cdn-apple.com/a/v1/help.wechat.com  ， 因苹果Universal Links更新机制，文件放好后不会立即生效，如果验证不过，可以过两天再试。
-
-3、在Xcode中设置Associated Domains域名（放apple-app-site-association文件的域名）
-
-在XCode中的 `Targets` > `Signing & Capabilitles` > `Associated Domains` > 添加【applinks:www.baidu.com】
-
-![Set Associated Domains](./image/associated-domains2.png)
+> 📖 **详细配置步骤请参考**：[iOS Universal Links 配置指南](./docs/ios-universal-links.md)
 
 
 ## 在expo中一键配置
-1、在项目根目录的【app.json】中添加如下配置
+
+### 1. 安装插件
+
+```bash
+npx expo install expo-wechat-sdk
 ```
+
+或
+
+```bash
+yarn add expo-wechat-sdk
+```
+
+### 2. 配置 app.json
+
+在项目根目录的 `app.json` 或 `app.config.js` 中添加插件配置：
+
+```json
 {
-    "expo":{
-    ....
-        "ios": {
-          "infoPlist": {
-            "LSApplicationQueriesSchemes": ["weixin", "weixinULAPI", "weixinURLParamsAPI"],
-            "CFBundleURLTypes": [
-              {
-                "CFBundleTypeRole": "Editor",
-                "CFBundleURLName": "wexin",
-                "CFBundleURLSchemes": ["wx54d90c03e686b854"]
-              }
-            ]
+  "expo": {
+    "plugins": [
+      "expo-wechat-sdk"
+    ],
+    "ios": {
+      "infoPlist": {
+        "LSApplicationQueriesSchemes": ["weixin", "weixinULAPI", "weixinURLParamsAPI"],
+        "CFBundleURLTypes": [
+          {
+            "CFBundleTypeRole": "Editor",
+            "CFBundleURLName": "wexin",
+            "CFBundleURLSchemes": ["wx你的AppID"]
           }
-        },
-    ....
+        ]
+      }
+    },
+    "android": {
+      "package": "com.your.package.name"
     }
+  }
 }
 ```
 
+**重要说明：**
+- 将 `wx你的AppID` 替换为你在微信开放平台申请的实际 AppID
+- `android.package` 需要设置为你的应用包名
+
 ![Set URL Types in XCode](./image/app-json.png)
 
-2、执行命令
+### 3. 插件自动配置功能
 
-`$ npx expo prebuild`
+本插件会自动完成以下配置：
 
+#### Android 自动配置
+- ✅ **ProGuard 混淆规则**：自动添加微信 SDK 的混淆规则，防止代码混淆导致的功能异常
+- ✅ **Android 11+ 兼容**：自动添加 `<queries>` 标签，确保在 Android 11 及以上版本正常使用
 
-## 在react native中手动配置
-### RN ios配置
-1、在XCode中的 `Targets` > `info` > `URL type` > `URL Schema` 添加微信的AppID
+#### iOS 自动配置
+- ✅ 通过 `app.json` 中的 `ios.infoPlist` 配置自动应用 URL Schemes 和查询方案
 
-![Set URL Types in XCode](./image/url-types.png)
+### 4. 执行预构建
 
-或者在Info.plist文件中添加：
-```xml
-<key>CFBundleURLTypes</key>
-<array>
-    <dict>
-        <key>CFBundleTypeRole</key>
-        <string>Editor</string>
-        <key>CFBundleURLName</key>
-        <string>wexin</string>
-        <key>CFBundleURLSchemes</key>
-        <array>
-            <string>wx54d90c03e686b854</string>
-        </array>
-    </dict>
-</array>
-```
-2、在XCode中的 `Targets` > `info` > `Custom iOS Target Properties` 
-添加 `Queried URL Schemes` 下面添加 `weixin`、`weixinULAPI`、`weixinURLParamsAPI`
+运行以下命令生成原生项目：
 
-![Set URL Schemas in XCode](./image/url-schemes.png)
-
-或者在Info.plist文件中添加：
-```xml
-<key>LSApplicationQueriesSchemes</key>
-<array>
-    <string>weixin</string>
-    <string>weixinULAPI</string>
-    <string>weixinURLParamsAPI</string>
-</array>
+```bash
+npx expo prebuild
 ```
 
-### RN android配置
-android无需额外配置。
+### 5. 验证配置
 
+预构建完成后，可以检查以下文件确认配置是否正确：
+
+**Android:**
+- `android/app/proguard-rules.pro` - 应包含微信 SDK 的混淆规则
+- `android/app/src/main/AndroidManifest.xml` - 应包含 `<queries>` 标签
+
+**iOS:**
+- `ios/你的项目名/Info.plist` - 应包含 `CFBundleURLTypes` 和 `LSApplicationQueriesSchemes`
+
+> ⚠️ **重要提示**：不建议手动修改原生项目配置文件（如 `Info.plist`、`AndroidManifest.xml` 等），因为这些文件在运行 `npx expo prebuild` 时会被重新生成，手动修改会被覆盖。如果遇到配置问题，欢迎提交 [Issue](https://github.com/joohw/expo-wechat/issues) 或 [Pull Request](https://github.com/joohw/expo-wechat/pulls)。
 
 ## 调用库
 ```javascript
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import * as WeChat from 'expo-react-native-wechat';
+import * as WeChat from 'expo-wechat-sdk';
 
 export default function App() {
     return (
@@ -212,7 +202,7 @@ const styles = StyleSheet.create({
 This method should be called once globally.
 
 ```js
-import * as WeChat from 'expo-react-native-wechat';
+import * as WeChat from 'expo-wechat-sdk';
 
 WeChat.registerApp('appid', 'universalLink');
 ```
@@ -277,7 +267,7 @@ Return:
 | errStr  | String | Error message if any error occurred |
 
 ```js
-import * as WeChat from 'expo-react-native-wechat';
+import * as WeChat from 'expo-wechat-sdk';
 
 WeChat.shareText({
   text: 'Text content.',
@@ -302,7 +292,7 @@ Return:
 | errStr  | String | Error message if any error occurred |
 
 ```js
-import * as WeChat from 'expo-react-native-wechat';
+import * as WeChat from 'expo-wechat-sdk';
 
 WeChat.shareImage({
   imageUrl: 'https://google.com/1.jpg',
@@ -344,7 +334,7 @@ Return:
 | errStr  | String | Error message if any error occurred |
 
 ```js
-import * as WeChat from 'expo-react-native-wechat';
+import * as WeChat from 'expo-wechat-sdk';
 
 WeChat.shareFile({
   imageUrl: 'https://sdcard/test.png',
@@ -376,7 +366,7 @@ Return:
 | errStr  | String | Error message if any error occurred |
 
 ```js
-import * as WeChat from 'expo-react-native-wechat';
+import * as WeChat from 'expo-wechat-sdk';
 
 WeChat.shareMusic({
   title: 'Good music.',
@@ -407,7 +397,7 @@ Return:
 | errStr  | String | Error message if any error occurred |
 
 ```js
-import * as WeChat from 'expo-react-native-wechat';
+import * as WeChat from 'expo-wechat-sdk';
 
 WeChat.shareVideo({
   title: 'Interesting video.',
@@ -437,165 +427,83 @@ Return:
 | errStr  | String | Error message if any error occurred |
 
 ```js
-import * as WeChat from 'expo-react-native-wechat';
+import * as WeChat from 'expo-wechat-sdk';
 
 WeChat.shareWebpage({
   title: 'Interesting web.',
-  videoUrl: 'https://google.com/music.mp3',
+  webpageUrl: 'https://google.com/page.html',
   thumbImageUrl: 'https://google.com/1.jpg',
   scene: 0,
-});
-```
-
-#### ShareMiniProgram(ShareMiniProgramMetadata) 分享小程序
-
-ShareMiniProgram
-
-| name            | type   | description                                                                        |
-| --------------- | ------ | ---------------------------------------------------------------------------------- |
-| title           | String | 标题                                                                               |
-| description     | String | 描述                                                                               |
-| thumbImageUrl   | String | 缩略图地址，本库会自动压缩到 32KB                                                  |
-| userName        | String | 小程序的 userName，填小程序原始 id                                                 |
-| path            | String | 小程序的页面路径                                                                   |
-| hdImageUrl      | String | 小程序新版本的预览图二进制数据，6.5.9 及以上版本微信客户端支持                     |
-| withShareTicket | String | 是否使用带 shareTicket 的分享                                                      |
-| miniProgramType | Number | 小程序的类型，默认正式版，1.8.1 及以上版本开发者工具包支持分享开发版和体验版小程序 |
-| webpageUrl      | String | 兼容低版本的网页链接                                                               |
-| scene           | Number | 分享到, 0:会话 1:朋友圈 2:收藏                                                     |
-
-Return:
-
-| name    | type   | description                         |
-| ------- | ------ | ----------------------------------- |
-| errCode | Number | 0 if authorization succeed          |
-| errStr  | String | Error message if any error occurred |
-
-```js
-import * as WeChat from 'expo-react-native-wechat';
-
-WeChat.shareMiniProgram({
-  title: 'Mini program.',
-  userName: 'gh_d39d10000000',
-  webpageUrl: 'https://google.com/show.html',
-  thumbImageUrl: 'https://google.com/1.jpg',
-  scene: 0,
-});
-```
-
-#### LaunchMiniProgram (LaunchMiniProgramMetadata) 跳到小程序
-
-LaunchMiniProgramMetadata
-
-| name            | type   | description                                                                                                                |
-| --------------- | ------ | -------------------------------------------------------------------------------------------------------------------------- |
-| userName        | String | 填小程序原始 id                                                                                                            |
-| miniProgramType | Number | 可选打开 开发版，体验版和正式版                                                                                            |
-| path            | String | 拉起小程序页面的可带参路径，不填默认拉起小程序首页，对于小游戏，可以只传入 query 部分，来实现传参效果，如：传入 "?foo=bar" |
-
-Return:
-
-| name    | type   | description                         |
-| ------- | ------ | ----------------------------------- |
-| errCode | Number | 0 if authorization succeed          |
-| errStr  | String | Error message if any error occurred |
-
-```js
-import * as WeChat from 'expo-react-native-wechat';
-
-WeChat.launchMiniProgram({
-  userName: 'gh_d39d10000000',
-  miniProgramType: 1,
-});
-```
-
-#### ChooseInvoice (ChooseInvoice) 选择发票
-
-ChooseInvoice
-
-| name      | type   | description |
-| --------- | ------ | ----------- |
-| cardSign  | String | 签名        |
-| signType  | String | 签名类型    |
-| timeStamp | Number | 当前时间戳  |
-| nonceStr  | String | 随机字符串  |
-
-Invoice
-
-| name        | type   | description |
-| ----------- | ------ | ----------- |
-| appId       | String |             |
-| cardId      | String | 发票 Id     |
-| encryptCode | String | 加密串      |
-
-Return:
-
-| name    | type      | description                         |
-| ------- | --------- | ----------------------------------- |
-| errCode | Number    | 0 if authorization succeed          |
-| cards   | Invoice[] | 发票数据                            |
-| errStr  | String    | Error message if any error occurred |
-
-```js
-import * as WeChat from 'expo-react-native-wechat';
-
-// ios 什么都不填都可以，android可以填写以下假的内容都可以正常运行，具体参数获取可以去看微信文档
-WeChat.chooseInvoice({
-  cardSign: 'cardSign',
-  signType: 'SHA256',
-  timeStamp: Date.now(),
-  nonceStr: `${Date.now()}`,
 });
 ```
 
 #### pay(payload) 支付
 
-- `payload` {Object} the payment data
+- `payload` {Object} 支付数据
     - `partnerId` {String} 商家向财付通申请的商家 ID
     - `prepayId` {String} 预支付订单 ID
     - `nonceStr` {String} 随机串
     - `timeStamp` {String} 时间戳
     - `package` {String} 商家根据财付通文档填写的数据和签名
     - `sign` {String} 商家根据微信开放平台文档对数据做的签名
-- returns {Object}
+- returns {Object} 返回支付结果
 
-Sends request for proceeding payment, then returns an object:
+发送支付请求，返回结果对象：
 
 | name    | type   | description                         |
 | ------- | ------ | ----------------------------------- |
-| errCode | Number | 0 if authorization succeed          |
-| errStr  | String | Error message if any error occurred |
+| errCode | Number | 0 表示支付成功                      |
+| errStr  | String | 错误信息（如果有）                  |
 
-#### subscribeMessage(SubscribeMessageMetadata) 一次性订阅消息
+```js
+import * as WeChat from 'expo-wechat-sdk';
 
-- returns {Object}
-
-| name       | type   | description                                                                                                                                                                                                                           |
-| ---------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| scene      | Number | 重定向后会带上 scene 参数，开发者可以填 0-10000 的整形值，用来标识订阅场值                                                                                                                                                            |
-| templateId | String | 订阅消息模板 ID，在微信开放平台提交应用审核通过后获得                                                                                                                                                                                 |
-| reserved   | String | 用于保持请求和回调的状态，授权请后原样带回给第三方。该参数可用于防止 csrf 攻击（跨站请求伪造攻击），建议第三方带上该参数，可设置为简单的随机数加 session 进行校验，开发者可以填写 a-zA-Z0-9 的参数值，最多 128 字节，要求做 urlencode |
-
-#### 回调事件订阅
-
-从小程序回到 APP，或者支付成功回到 APP 都会触发回调事件来返回相应信息，请在触发相应方法前提前添加事件队列。
-
+WeChat.pay({
+  partnerId: 'your_partner_id',
+  prepayId: 'your_prepay_id',
+  nonceStr: 'random_string',
+  timeStamp: 'timestamp',
+  package: 'Sign=WXPay',
+  sign: 'your_sign'
+});
 ```
-    WeChat.registerApp(Global.APP_ID, Global.UNIVERSAL_LINK);
-    DeviceEventEmitter.addListener('WeChat_Req', req => {
-      console.log('req:', req)
-      if (req.type === 'LaunchFromWX.Req') { // 从小程序回到APP的事件
-        miniProgramCallback(req.extMsg)
-      }
-    });
-    DeviceEventEmitter.addListener('WeChat_Resp', resp => {
-      console.log('res:', resp)
-      if (resp.type === 'WXLaunchMiniProgramReq.Resp') { // 从小程序回到APP的事件
-        miniProgramCallback(resp.extMsg)
-      } else if (resp.type === 'SendMessageToWX.Resp') { // 发送微信消息后的事件
-        sendMessageCallback(resp.country)
-      } else if (resp.type === 'PayReq.Resp') { // 支付回调
-        payCallback(resp)
-      }
-    });
+
+## 回调事件订阅
+
+分享和支付完成后会触发回调事件，请在调用相应方法前提前添加事件监听。
+
+```js
+import { DeviceEventEmitter } from 'react-native';
+import * as WeChat from 'expo-wechat-sdk';
+
+// 注册应用
+WeChat.registerApp('your_app_id', 'your_universal_link');
+
+// 监听分享回调
+DeviceEventEmitter.addListener('WeChat_Resp', resp => {
+  console.log('微信回调:', resp);
+  
+  if (resp.type === 'SendMessageToWX.Resp') {
+    // 分享回调
+    if (resp.errCode === 0) {
+      console.log('分享成功');
+    } else {
+      console.log('分享失败:', resp.errStr);
+    }
+  } else if (resp.type === 'PayReq.Resp') {
+    // 支付回调
+    if (resp.errCode === 0) {
+      console.log('支付成功');
+    } else {
+      console.log('支付失败:', resp.errStr);
+    }
+  } else if (resp.type === 'SendAuth.Resp') {
+    // 登录回调
+    if (resp.errCode === 0) {
+      console.log('登录成功，code:', resp.code);
+    } else {
+      console.log('登录失败:', resp.errStr);
+    }
+  }
+});
 ```

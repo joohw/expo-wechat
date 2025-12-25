@@ -1,19 +1,21 @@
 {
   "name": "expo-wechat-sdk",
   "title": "Expo Wechat SDK",
-  "version": "1.0.3",
-  "description": "为 Expo 和 React Native 提供微信登录、分享、支付功能的原生模块。基于最新微信 SDK 开发，支持 iOS 和 Android 平台",
+  "version": "1.0.10",
+  "description": "WeChat SDK for Expo and React Native - Login, Share, and Payment. Official WeChat integration solution with iOS & Android support. 微信登录、分享、支付功能集成",
   "main": "src/index",
   "files": [
     "src",
     "ios",
     "android",
     "expo-wechat.podspec",
+    "app.plugin.js",
     "README.md",
     "image"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo \"Build completed successfully\" && exit 0"
   },
   "repository": {
     "type": "git",
@@ -22,11 +24,27 @@
   },
   "keywords": [
     "wechat",
-    "react-native",
-    "react",
+    "weixin",
+    "微信",
     "expo",
+    "expo-plugin",
+    "react-native",
+    "react-native-wechat",
+    "wechat-sdk",
+    "wechat-login",
+    "wechat-share",
+    "wechat-pay",
+    "微信登录",
+    "微信分享",
+    "微信支付",
+    "oauth",
+    "social-share",
+    "mobile-payment",
     "ios",
-    "android"
+    "android",
+    "universal-links",
+    "native-module",
+    "typescript"
   ],
   "author": "Joo <1546635571@qq.com>",
   "license": "MIT",
@@ -34,6 +52,17 @@
     "events": "^3.3.0"
   },
   "types": "./src/index.d.ts",
+  "expo": {
+    "name": "expo-wechat",
+    "slug": "expo-wechat",
+    "version": "1.0.10",
+    "description": "为 Expo 和 React Native 提供微信登录、分享、支付功能的原生模块",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "plugin": "./app.plugin.js"
+  },
   "bugs": {
     "url": "https://github.com/joohw/expo-wechat/issues"
   },

@@ -1,19 +1,21 @@
 // android/build.gradle
+// 这些默认值应该反映 React Native 最低支持版本使用的 SDK 版本
 
-// These defaults should reflect the SDK versions used by
-// the minimum React Native version supported.
 apply plugin: 'com.android.library'
 
+// 安全获取扩展属性，如果不存在则使用默认值
 def safeExtGet(prop, fallback) {
 rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
 }
 
 android {
+// 编译 SDK 版本，默认使用 31
 compileSdkVersion safeExtGet('compileSdkVersion', 31)
 }
 
 dependencies {
+// 忽略 Gradle 动态版本警告
 // noinspection GradleDynamicVersion
-    implementation 'com.facebook.react:react-native:+'  // From node_modules
-    api 'com.tencent.mm.opensdk:wechat-sdk-android:+'
+    implementation 'com.facebook.react:react-native:+'  // 从 node_modules 引入
+    api 'com.tencent.mm.opensdk:wechat-sdk-android:+'  // 微信 SDK
 }
